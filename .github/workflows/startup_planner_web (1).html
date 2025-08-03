@@ -1,0 +1,1729 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Startup Planner - Application Complète</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #F0F2F5;
+            line-height: 1.6;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: white;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2196F3;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Login Page */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .login-form {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .login-form h1 {
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .login-subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.3s;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .auth-toggle {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+
+        .auth-toggle button {
+            background: none;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .success-message {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        /* Main App Layout */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            background-color: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 60px;
+            font-size: 12px;
+            border-radius: 8px;
+        }
+
+        .nav-item.active {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .nav-item:not(.active) {
+            color: #666;
+        }
+
+        .nav-item:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        /* Projects Page */
+        .projects-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .page-subtitle {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .filter-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .filter-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .filter-select {
+            padding: 10px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .add-project-btn {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.3s;
+        }
+
+        .add-project-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .project-card {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .project-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .project-card.business {
+            border-left-color: #2196F3;
+        }
+
+        .project-card.marketing {
+            border-left-color: #FF9800;
+        }
+
+        .project-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .project-type {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .project-type.business {
+            background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+            color: #0D47A1;
+        }
+
+        .project-type.marketing {
+            background: linear-gradient(135deg, #FFF3E0 0%, #FFCC80 100%);
+            color: #E65100;
+        }
+
+        .project-content {
+            color: #666;
+            line-height: 1.5;
+            white-space: pre-line;
+            margin-bottom: 20px;
+        }
+
+        .project-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+        }
+
+        .btn-view {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+        }
+
+        .btn-view:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-share {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+        }
+
+        .btn-share:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-delete {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+            color: white;
+        }
+
+        .btn-delete:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Competitor Research Page */
+        .competitor-page {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .analysis-form {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-row > * {
+            flex: 1;
+        }
+
+        .competitor-results {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .competitor-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            border-left: 4px solid #667eea;
+        }
+
+        .competitor-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .competitor-info {
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .strengths-weaknesses {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .strength-item, .weakness-item {
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .strength-item {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .weakness-item {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #666;
+            padding: 4px;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .project-detail-content {
+            line-height: 1.6;
+            color: #333;
+            white-space: pre-line;
+            margin-bottom: 24px;
+            font-size: 16px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* Share Modal */
+        .share-options {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .share-section h3 {
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .share-link-container {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .share-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: #f9f9f9;
+        }
+
+        .btn-copy {
+            background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+            color: white;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.3s;
+        }
+
+        .btn-copy:hover {
+            transform: translateY(-2px);
+        }
+
+        .qr-code-container {
+            text-align: center;
+            padding: 24px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+        }
+
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            background: white;
+            border: 2px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 12px;
+            text-align: center;
+            border-radius: 8px;
+        }
+
+        .copy-success {
+            color: #4CAF50;
+            font-size: 12px;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+
+        /* Confirmation Dialog */
+        .confirm-dialog {
+            background-color: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .confirm-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .confirm-message {
+            color: #666;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .confirm-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .btn-cancel {
+            background: #f5f5f5;
+            color: #333;
+            border: 2px solid #e0e0e0;
+        }
+
+        .btn-cancel:hover {
+            background: #e0e0e0;
+        }
+
+        .placeholder-page {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            color: #999;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .placeholder-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .no-projects {
+            text-align: center;
+            color: #666;
+            padding: 60px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 12px;
+            }
+            
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .project-actions {
+                justify-content: space-between;
+            }
+            
+            .btn {
+                flex: 1;
+                text-align: center;
+                min-width: 0;
+            }
+            
+            .modal-content {
+                margin: 10px;
+                max-height: 90vh;
+                padding: 24px;
+            }
+            
+            .share-link-container {
+                flex-direction: column;
+            }
+            
+            .share-input {
+                width: 100%;
+            }
+
+            .filter-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-left {
+                justify-content: space-between;
+            }
+
+            .form-row {
+                flex-direction: column;
+            }
+
+            .strengths-weaknesses {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .project-card {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .modal-content {
+            animation: fadeIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <!-- Supabase Client -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/supabase/2.39.3/supabase.min.js"></script>
+
+    <script>
+        // 🔧 SUPABASE CONFIGURATION
+        const SUPABASE_URL = 'https://your-project.supabase.co';
+        const SUPABASE_ANON_KEY = 'your-anon-key';
+
+        // Initialize Supabase client (remplacez par vos vraies clés)
+        const supabase = window.supabase?.createClient ? 
+            window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : 
+            null;
+
+        // 📊 APPLICATION STATE
+        let appState = {
+            isLoading: true,
+            user: null,
+            selectedTab: 0,
+            projects: [],
+            filter: 'all',
+            isFetching: false,
+            currentModal: null,
+            selectedProject: null,
+            deleteProjectId: null,
+            copySuccess: false,
+            authMode: 'login', // 'login' or 'signup'
+            authError: null,
+            authSuccess: null,
+            competitorAnalysis: null,
+            isAnalyzing: false
+        };
+
+        // 🎯 MOCK DATA (fallback si Supabase n'est pas configuré)
+        const mockProjects = [
+            {
+                id: '1',
+                user_id: 'user-123',
+                title: 'Plan pour une App de Café',
+                type: 'business',
+                content: 'Étape 1: Étude de marché complète\n• Analyser la concurrence locale\n• Identifier les habitudes des consommateurs\n• Évaluer la demande du marché\n\nÉtape 2: Définir les fonctionnalités clés\n• Système de commande en ligne\n• Programme de fidélité\n• Géolocalisation des cafés\n• Paiement mobile intégré\n\nÉtape 3: Stratégie de monétisation\n• Commission sur les commandes\n• Abonnements premium\n• Partenariats avec les cafés',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            },
+            {
+                id: '2',
+                user_id: 'user-123',
+                title: 'Campagne de lancement Instagram',
+                type: 'marketing',
+                content: 'Phase 1: Création de contenu visuel\n• 10 posts visuels de haute qualité\n• Design cohérent avec la charte graphique\n• Photos professionnelles des produits\n\nPhase 2: Stories interactives\n• 5 stories avec sondages\n• Questions-réponses en direct\n• Coulisses de l\'entreprise\n\nPhase 3: Influence marketing\n• Contacter 3 micro-influenceurs (10k-100k followers)\n• Négocier des partenariats\n• Suivre les métriques d\'engagement',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            },
+            {
+                id: '3',
+                user_id: 'user-456',
+                title: 'Projet d\'un autre utilisateur',
+                type: 'business',
+                content: 'Ce projet ne devrait pas être visible pour l\'utilisateur actuel.',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            }
+        ];
+
+        const tabTitles = ['Dashboard', 'Business Plan', 'Mes Projets', 'Marketing', 'Analyse Concurrentielle'];
+        const tabIcons = ['📊', '💼', '💡', '📢', '🔍'];
+
+        // 🔐 AUTHENTICATION FUNCTIONS
+        async function handleAuth(email, password, isSignup = false) {
+            appState.authError = null;
+            appState.authSuccess = null;
+
+            try {
+                if (!supabase) {
+                    // Simulation mode
+                    if (email && password) {
+                        appState.user = {
+                            id: 'user-123',
+                            email: email,
+                            user_metadata: { full_name: email.split('@')[0] }
+                        };
+                        appState.authSuccess = isSignup ? 'Compte créé avec succès!' : 'Connexion réussie!';
+                        setTimeout(() => {
+                            fetchProjects();
+                            render();
+                        }, 1000);
+                    } else {
+                        appState.authError = 'Veuillez remplir tous les champs';
+                    }
+                    render();
+                    return;
+                }
+
+                let result;
+                if (isSignup) {
+                    result = await supabase.auth.signUp({
+                        email: email,
+                        password: password
+                    });
+                    if (result.error) throw result.error;
+                    appState.authSuccess = 'Compte créé! Vérifiez votre email.';
+                } else {
+                    result = await supabase.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    });
+                    if (result.error) throw result.error;
+                    appState.user = result.data.user;
+                    fetchProjects();
+                }
+            } catch (error) {
+                appState.authError = error.message;
+            }
+            render();
+        }
+
+        async function handleLogout() {
+            try {
+                if (supabase) {
+                    await supabase.auth.signOut();
+                }
+                appState.user = null;
+                appState.currentModal = null;
+                appState.projects = [];
+                render();
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+
+        // 📝 PROJECT FUNCTIONS
+        async function fetchProjects() {
+            if (!appState.user) return;
+
+            appState.isFetching = true;
+            render();
+
+            try {
+                await new Promise(resolve => setTimeout(resolve, 800)); // Simulate network delay
+
+                let filteredProjects;
+                
+                if (supabase) {
+                    // Real Supabase query
+                    let query = supabase
+                        .from('projects')
+                        .select('*')
+                        .eq('user_id', appState.user.id);
+
+                    if (appState.filter !== 'all') {
+                        query = query.eq('type', appState.filter);
+                    }
+
+                    const { data, error } = await query;
+                    if (error) throw error;
+                    filteredProjects = data || [];
+                } else {
+                    // Mock data fallback
+                    filteredProjects = mockProjects.filter(p => p.user_id === appState.user.id);
+                    if (appState.filter !== 'all') {
+                        filteredProjects = filteredProjects.filter(p => p.type === appState.filter);
+                    }
+                }
+
+                appState.projects = filteredProjects;
+            } catch (error) {
+                console.error('Error fetching projects:', error);
+                appState.projects = [];
+            }
+
+            appState.isFetching = false;
+            render();
+        }
+
+        async function deleteProject() {
+            try {
+                if (supabase) {
+                    const { error } = await supabase
+                        .from('projects')
+                        .delete()
+                        .eq('id', appState.deleteProjectId);
+                    if (error) throw error;
+                } else {
+                    // Mock deletion
+                    const projectIndex = mockProjects.findIndex(p => p.id === appState.deleteProjectId);
+                    if (projectIndex !== -1) {
+                        mockProjects.splice(projectIndex, 1);
+                    }
+                }
+                fetchProjects();
+                closeModal();
+            } catch (error) {
+                console.error('Error deleting project:', error);
+            }
+        }
+
+        // 🔍 COMPETITOR ANALYSIS FUNCTIONS
+        async function analyzeCompetitors(industry, location, targetMarket) {
+            if (!industry || !location || !targetMarket) {
+                alert('Veuillez remplir tous les champs');
+                return;
+            }
+
+            appState.isAnalyzing = true;
+            appState.competitorAnalysis = null;
+            render();
+
+            try {
+                // Simulate AI analysis with Claude API
+                const response = await fetch("https://api.anthropic.com/v1/messages", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        model: "claude-sonnet-4-20250514",
+                        max_tokens: 1500,
+                        messages: [
+                            {
+                                role: "user",
+                                content: `Analyse concurrentielle pour une startup dans le secteur: ${industry}, située à ${location}, ciblant: ${targetMarket}.
+
+Fournis une analyse structurée avec:
+1. Top 3 concurrents principaux
+2. Forces et faiblesses de chaque concurrent
+3. Opportunités de marché
+4. Recommandations stratégiques
+
+Réponds uniquement avec un JSON valide dans ce format:
+{
+  "competitors": [
+    {
+      "name": "Nom du concurrent",
+      "description": "Description brève",
+      "marketShare": "Part de marché estimée",
+      "strengths": ["Force 1", "Force 2"],
+      "weaknesses": ["Faiblesse 1", "Faiblesse 2"],
+      "website": "URL (si connue)"
+    }
+  ],
+  "opportunities": ["Opportunité 1", "Opportunité 2"],
+  "recommendations": ["Recommandation 1", "Recommandation 2"],
+  "marketInsights": "Analyse générale du marché"
+}`
+                            }
+                        ]
+                    })
+                });
+
+                const data = await response.json();
+                let analysisText = data.content[0].text;
+                
+                // Clean JSON response
+                analysisText = analysisText.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+                
+                try {
+                    appState.competitorAnalysis = JSON.parse(analysisText);
+                } catch (parseError) {
+                    // Fallback to mock data if Claude API fails
+                    appState.competitorAnalysis = generateMockAnalysis(industry, location, targetMarket);
+                }
+            } catch (error) {
+                console.error('Analysis error:', error);
+                // Fallback to mock analysis
+                appState.competitorAnalysis = generateMockAnalysis(industry, location, targetMarket);
+            }
+
+            appState.isAnalyzing = false;
+            render();
+        }
+
+        function generateMockAnalysis(industry, location, targetMarket) {
+            return {
+                competitors: [
+                    {
+                        name: `Leader ${industry}`,
+                        description: `Principal acteur du marché ${industry} à ${location}`,
+                        marketShare: "35-40%",
+                        strengths: ["Forte notoriété", "Réseau de distribution étendu", "Budget marketing important"],
+                        weaknesses: ["Prix élevés", "Innovation lente", "Service client perfectible"],
+                        website: "example-leader.com"
+                    },
+                    {
+                        name: `Innovateur ${industry}`,
+                        description: `Startup innovante ciblant ${targetMarket}`,
+                        marketShare: "15-20%",
+                        strengths: ["Innovation technologique", "Agilité", "Expérience utilisateur moderne"],
+                        weaknesses: ["Ressources limitées", "Notoriété faible", "Couverture géographique restreinte"],
+                        website: "example-innovator.com"
+                    },
+                    {
+                        name: `Traditionnel ${industry}`,
+                        description: `Acteur historique avec approche traditionnelle`,
+                        marketShare: "20-25%",
+                        strengths: ["Expérience du marché", "Relations établies", "Stabilité financière"],
+                        weaknesses: ["Résistance au changement", "Interface obsolète", "Cible vieillissante"],
+                        website: "example-traditional.com"
+                    }
+                ],
+                opportunities: [
+                    `Segment ${targetMarket} sous-exploité`,
+                    "Digitalisation du secteur en cours",
+                    "Demande croissante pour des solutions personnalisées",
+                    `Expansion possible vers d'autres villes que ${location}`
+                ],
+                recommendations: [
+                    "Se positionner sur l'innovation et l'expérience utilisateur",
+                    "Cibler les lacunes des concurrents établis",
+                    "Développer un avantage concurrentiel durable",
+                    "Investir dans le marketing digital pour gagner en visibilité"
+                ],
+                marketInsights: `Le marché ${industry} à ${location} présente des opportunités intéressantes, notamment pour cibler ${targetMarket}. La concurrence est établie mais présente des failles exploitables par une approche innovante.`
+            };
+        }
+
+        // 🎨 RENDERING FUNCTIONS
+        function render() {
+            const app = document.getElementById('app');
+            
+            if (appState.isLoading) {
+                app.innerHTML = `
+                    <div class="loading-screen">
+                        <div class="spinner"></div>
+                        <div>Initialisation de l'application...</div>
+                    </div>
+                `;
+                return;
+            }
+
+            if (!appState.user) {
+                app.innerHTML = renderAuthPage();
+                return;
+            }
+
+            app.innerHTML = `
+                <div class="app-container">
+                    <header class="header">
+                        <h1>${tabTitles[appState.selectedTab]}</h1>
+                        <div class="user-info">
+                            <div class="user-avatar">${appState.user.email.charAt(0).toUpperCase()}</div>
+                            <span>${appState.user.user_metadata?.full_name || appState.user.email}</span>
+                            <button class="logout-btn" onclick="handleLogout()">
+                                🚪 Déconnexion
+                            </button>
+                        </div>
+                    </header>
+                    
+                    <main class="main-content">
+                        ${renderCurrentPage()}
+                    </main>
+                    
+                    <nav class="bottom-nav">
+                        ${tabTitles.map((title, index) => `
+                            <div class="nav-item ${appState.selectedTab === index ? 'active' : ''}" 
+                                 onclick="switchTab(${index})">
+                                <div class="nav-icon">${tabIcons[index]}</div>
+                                <div>${getShortTabName(title)}</div>
+                            </div>
+                        `).join('')}
+                    </nav>
+                    
+                    ${renderModals()}
+                </div>
+            `;
+        }
+
+        function renderAuthPage() {
+            return `
+                <div class="login-container">
+                    <div class="login-form">
+                        <h1>Startup Planner</h1>
+                        <p class="login-subtitle">Votre assistant IA pour entrepreneuriat</p>
+                        
+                        ${appState.authError ? `<div class="error-message">${appState.authError}</div>` : ''}
+                        ${appState.authSuccess ? `<div class="success-message">${appState.authSuccess}</div>` : ''}
+                        
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" class="form-input" placeholder="votre@email.com" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password">Mot de passe</label>
+                            <input type="password" id="password" class="form-input" placeholder="••••••••" required>
+                        </div>
+                        
+                        <button class="btn-primary" onclick="submitAuth()">
+                            ${appState.authMode === 'login' ? '🔐 Se connecter' : '👤 Créer un compte'}
+                        </button>
+                        
+                        <button class="btn-secondary" onclick="toggleAuthMode()">
+                            ${appState.authMode === 'login' ? 'Pas de compte ? S\'inscrire' : 'Déjà un compte ? Se connecter'}
+                        </button>
+                        
+                        <div class="auth-toggle">
+                            <small>Mode démo: utilisez n'importe quel email/mot de passe</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCurrentPage() {
+            switch (appState.selectedTab) {
+                case 0: return renderDashboard();
+                case 1: return renderBusinessPlan();
+                case 2: return renderProjectsPage();
+                case 3: return renderMarketingPage();
+                case 4: return renderCompetitorPage();
+                default: return renderPlaceholder();
+            }
+        }
+
+        function renderDashboard() {
+            const totalProjects = appState.projects.length;
+            const businessProjects = appState.projects.filter(p => p.type === 'business').length;
+            const marketingProjects = appState.projects.filter(p => p.type === 'marketing').length;
+
+            return `
+                <div class="projects-container">
+                    <div class="page-header">
+                        <h1 class="page-title">🚀 Tableau de Bord</h1>
+                        <p class="page-subtitle">Vue d'ensemble de vos projets entrepreneuriaux</p>
+                    </div>
+                    
+                    <div class="projects-grid">
+                        <div class="project-card">
+                            <div class="project-title">📊 Statistiques</div>
+                            <div class="project-content">
+                                • Total projets: ${totalProjects}
+                                • Business plans: ${businessProjects}
+                                • Contenus marketing: ${marketingProjects}
+                                • Dernière activité: ${new Date().toLocaleDateString('fr-FR')}
+                            </div>
+                        </div>
+                        
+                        <div class="project-card">
+                            <div class="project-title">🎯 Actions rapides</div>
+                            <div class="project-content">
+                                Accédez rapidement à vos fonctionnalités principales
+                            </div>
+                            <div class="project-actions">
+                                <button class="btn btn-view" onclick="switchTab(2)">
+                                    📋 Mes Projets
+                                </button>
+                                <button class="btn btn-share" onclick="switchTab(4)">
+                                    🔍 Analyser Concurrence
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="project-card">
+                            <div class="project-title">💡 Conseils du jour</div>
+                            <div class="project-content">
+                                "${getDailyTip()}"
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderBusinessPlan() {
+            return `
+                <div class="placeholder-page">
+                    <div class="placeholder-icon">💼</div>
+                    <h2>Générateur de Business Plan IA</h2>
+                    <p>Fonctionnalité en développement</p>
+                    <p>Bientôt disponible pour créer vos business plans automatiquement</p>
+                </div>
+            `;
+        }
+
+        function renderProjectsPage() {
+            if (appState.isFetching) {
+                return `
+                    <div class="projects-container">
+                        <div style="display: flex; justify-content: center; align-items: center; height: 300px;">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="projects-container">
+                    <div class="page-header">
+                        <h1 class="page-title">💡 Mes Projets</h1>
+                        <p class="page-subtitle">Gérez et organisez tous vos projets entrepreneuriaux</p>
+                    </div>
+                    
+                    <div class="filter-section">
+                        <div class="filter-left">
+                            <span class="filter-label">Filtrer par type:</span>
+                            <select class="filter-select" onchange="changeFilter(this.value)" value="${appState.filter}">
+                                <option value="all" ${appState.filter === 'all' ? 'selected' : ''}>📋 Tous les projets</option>
+                                <option value="business" ${appState.filter === 'business' ? 'selected' : ''}>💼 Business Plans</option>
+                                <option value="marketing" ${appState.filter === 'marketing' ? 'selected' : ''}>📢 Marketing</option>
+                            </select>
+                        </div>
+                        <button class="add-project-btn" onclick="alert('Fonctionnalité bientôt disponible!')">
+                            ➕ Nouveau projet
+                        </button>
+                    </div>
+                    
+                    <div class="projects-grid">
+                        ${appState.projects.length === 0 
+                            ? `<div class="no-projects">
+                                <div class="empty-state-icon">📁</div>
+                                <h3>Aucun projet trouvé</h3>
+                                <p>Commencez par créer votre premier projet !</p>
+                               </div>`
+                            : appState.projects.map(project => `
+                                <div class="project-card ${project.type}">
+                                    <div class="project-title">${project.title}</div>
+                                    <div class="project-type ${project.type}">
+                                        ${project.type === 'business' ? '💼 Business Plan' : '📢 Marketing'}
+                                    </div>
+                                    <div class="project-content">${project.content.length > 200 ? project.content.substring(0, 200) + '...' : project.content}</div>
+                                    <div class="project-actions">
+                                        <button class="btn btn-view" onclick="viewProject('${project.id}')">
+                                            👁️ Détails
+                                        </button>
+                                        <button class="btn btn-share" onclick="shareProject('${project.id}')">
+                                            📤 Partager
+                                        </button>
+                                        <button class="btn btn-delete" onclick="confirmDeleteProject('${project.id}')">
+                                            🗑️ Supprimer
+                                        </button>
+                                    </div>
+                                </div>
+                            `).join('')
+                        }
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderMarketingPage() {
+            return `
+                <div class="placeholder-page">
+                    <div class="placeholder-icon">📢</div>
+                    <h2>Générateur de Contenu Marketing IA</h2>
+                    <p>Fonctionnalité en développement</p>
+                    <p>Créez du contenu marketing optimisé avec l'IA</p>
+                </div>
+            `;
+        }
+
+        function renderCompetitorPage() {
+            return `
+                <div class="competitor-page">
+                    <div class="page-header">
+                        <h1 class="page-title">🔍 Analyse Concurrentielle IA</h1>
+                        <p class="page-subtitle">Analysez votre marché et identifiez vos concurrents avec l'IA</p>
+                    </div>
+                    
+                    <div class="analysis-form">
+                        <h3>Paramètres d'analyse</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="industry">Secteur d'activité</label>
+                                <input type="text" id="industry" class="form-input" placeholder="Ex: E-commerce, SaaS, Restauration...">
+                            </div>
+                            <div class="form-group">
+                                <label for="location">Localisation</label>
+                                <input type="text" id="location" class="form-input" placeholder="Ex: Paris, France">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="target">Marché cible</label>
+                            <input type="text" id="target" class="form-input" placeholder="Ex: Jeunes professionnels 25-35 ans">
+                        </div>
+                        <button class="btn-primary" onclick="startAnalysis()" ${appState.isAnalyzing ? 'disabled' : ''}>
+                            ${appState.isAnalyzing ? '🔄 Analyse en cours...' : '🚀 Lancer l\'analyse IA'}
+                        </button>
+                    </div>
+                    
+                    ${appState.isAnalyzing ? `
+                        <div class="competitor-results">
+                            <div style="text-align: center; padding: 40px;">
+                                <div class="spinner"></div>
+                                <p>Analyse en cours avec l'IA Claude...</p>
+                                <small>Cette opération peut prendre quelques secondes</small>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${appState.competitorAnalysis ? renderCompetitorResults() : ''}
+                </div>
+            `;
+        }
+
+        function renderCompetitorResults() {
+            const analysis = appState.competitorAnalysis;
+            
+            return `
+                <div class="competitor-results">
+                    <h3>📊 Résultats de l'analyse</h3>
+                    
+                    <div style="margin-bottom: 24px; padding: 16px; background: #f8f9fa; border-radius: 12px;">
+                        <h4>🎯 Aperçu du marché</h4>
+                        <p>${analysis.marketInsights}</p>
+                    </div>
+                    
+                    <h4>🏢 Principaux concurrents</h4>
+                    ${analysis.competitors.map(competitor => `
+                        <div class="competitor-card">
+                            <div class="competitor-name">${competitor.name}</div>
+                            <div class="competitor-info">
+                                <strong>Part de marché:</strong> ${competitor.marketShare}<br>
+                                <strong>Description:</strong> ${competitor.description}
+                                ${competitor.website ? `<br><strong>Site web:</strong> ${competitor.website}` : ''}
+                            </div>
+                            <div class="strengths-weaknesses">
+                                <div>
+                                    <h5>💪 Forces</h5>
+                                    ${competitor.strengths.map(strength => `
+                                        <div class="strength-item">${strength}</div>
+                                    `).join('')}
+                                </div>
+                                <div>
+                                    <h5>⚠️ Faiblesses</h5>
+                                    ${competitor.weaknesses.map(weakness => `
+                                        <div class="weakness-item">${weakness}</div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                    
+                    <div style="margin-top: 24px;">
+                        <h4>🎯 Opportunités identifiées</h4>
+                        <div style="display: grid; gap: 8px; margin-bottom: 16px;">
+                            ${analysis.opportunities.map(opp => `
+                                <div class="strength-item">${opp}</div>
+                            `).join('')}
+                        </div>
+                        
+                        <h4>💡 Recommandations stratégiques</h4>
+                        <div style="display: grid; gap: 8px;">
+                            ${analysis.recommendations.map(rec => `
+                                <div style="padding: 12px; background: #e3f2fd; border-left: 4px solid #2196f3; border-radius: 8px;">
+                                    ${rec}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderModals() {
+            if (!appState.currentModal) return '';
+
+            const overlay = '<div class="modal-overlay" onclick="closeModal()">';
+            const endOverlay = '</div>';
+
+            switch (appState.currentModal) {
+                case 'detail':
+                    return `${overlay}
+                        <div class="modal-content" onclick="event.stopPropagation()">
+                            <div class="modal-header">
+                                <h2 class="modal-title">${appState.selectedProject.title}</h2>
+                                <button class="close-btn" onclick="closeModal()">×</button>
+                            </div>
+                            <div class="project-type ${appState.selectedProject.type}" style="margin-bottom: 20px;">
+                                ${appState.selectedProject.type === 'business' ? '💼 Business Plan' : '📢 Marketing'}
+                            </div>
+                            <div class="project-detail-content">${appState.selectedProject.content}</div>
+                            <div class="modal-actions">
+                                <button class="btn btn-share" onclick="shareProject('${appState.selectedProject.id}')">
+                                    📤 Partager ce projet
+                                </button>
+                                <button class="btn btn-delete" onclick="confirmDeleteProject('${appState.selectedProject.id}')">
+                                    🗑️ Supprimer
+                                </button>
+                            </div>
+                        </div>
+                    ${endOverlay}`;
+
+                case 'share':
+                    const shareUrl = `${window.location.origin}${window.location.pathname}?project=${appState.selectedProject.id}`;
+                    return `${overlay}
+                        <div class="modal-content" onclick="event.stopPropagation()">
+                            <div class="modal-header">
+                                <h2 class="modal-title">📤 Partager le projet</h2>
+                                <button class="close-btn" onclick="closeModal()">×</button>
+                            </div>
+                            <div class="share-options">
+                                <div class="share-section">
+                                    <h3>🔗 Lien de partage</h3>
+                                    <div class="share-link-container">
+                                        <input type="text" class="share-input" value="${shareUrl}" readonly id="shareUrl">
+                                        <button class="btn-copy" onclick="copyToClipboard()">
+                                            📋 Copier
+                                        </button>
+                                    </div>
+                                    ${appState.copySuccess ? '<div class="copy-success">✅ Lien copié dans le presse-papiers !</div>' : ''}
+                                </div>
+                                <div class="share-section">
+                                    <h3>📱 Code QR</h3>
+                                    <div class="qr-code-container">
+                                        <div class="qr-code">
+                                            📱<br>
+                                            Code QR pour<br>
+                                            "${appState.selectedProject.title}"<br>
+                                            <small>(Simulation - intégrez une vraie librairie QR)</small>
+                                        </div>
+                                        <p style="margin-top: 12px; font-size: 14px; color: #666;">
+                                            Scannez ce code pour accéder au projet sur mobile
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ${endOverlay}`;
+
+                case 'confirm-delete':
+                    const projectToDelete = appState.projects.find(p => p.id === appState.deleteProjectId) ||
+                                           mockProjects.find(p => p.id === appState.deleteProjectId);
+                    return `${overlay}
+                        <div class="confirm-dialog" onclick="event.stopPropagation()">
+                            <h3 class="confirm-title">⚠️ Confirmer la suppression</h3>
+                            <p class="confirm-message">
+                                Êtes-vous sûr de vouloir supprimer le projet<br>
+                                <strong>"${projectToDelete?.title}"</strong> ?<br><br>
+                                ⚠️ Cette action est définitive et irréversible.
+                            </p>
+                            <div class="confirm-actions">
+                                <button class="btn btn-cancel" onclick="closeModal()">
+                                    ❌ Annuler
+                                </button>
+                                <button class="btn btn-delete" onclick="deleteProject()">
+                                    🗑️ Supprimer définitivement
+                                </button>
+                            </div>
+                        </div>
+                    ${endOverlay}`;
+
+                default:
+                    return '';
+            }
+        }
+
+        // 🎮 EVENT HANDLERS
+        function submitAuth() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            handleAuth(email, password, appState.authMode === 'signup');
+        }
+
+        function toggleAuthMode() {
+            appState.authMode = appState.authMode === 'login' ? 'signup' : 'login';
+            appState.authError = null;
+            appState.authSuccess = null;
+            render();
+        }
+
+        function switchTab(index) {
+            appState.selectedTab = index;
+            appState.currentModal = null;
+            if (index === 2) { // Projects tab
+                fetchProjects();
+            }
+            render();
+        }
+
+        function changeFilter(newFilter) {
+            appState.filter = newFilter;
+            fetchProjects();
+        }
+
+        function startAnalysis() {
+            const industry = document.getElementById('industry').value;
+            const location = document.getElementById('location').value;
+            const target = document.getElementById('target').value;
+            analyzeCompetitors(industry, location, target);
+        }
+
+        // Modal Management
+        function closeModal() {
+            appState.currentModal = null;
+            appState.selectedProject = null;
+            appState.deleteProjectId = null;
+            appState.copySuccess = false;
+            render();
+        }
+
+        function viewProject(projectId) {
+            const project = appState.projects.find(p => p.id === projectId);
+            if (project) {
+                appState.selectedProject = project;
+                appState.currentModal = 'detail';
+                render();
+            }
+        }
+
+        function shareProject(projectId) {
+            const project = appState.projects.find(p => p.id === projectId) || 
+                            mockProjects.find(p => p.id === projectId);
+            if (project) {
+                appState.selectedProject = project;
+                appState.currentModal = 'share';
+                appState.copySuccess = false;
+                render();
+            }
+        }
+
+        function confirmDeleteProject(projectId) {
+            appState.deleteProjectId = projectId;
+            appState.currentModal = 'confirm-delete';
+            render();
+        }
+
+        async function copyToClipboard() {
+            try {
+                const shareUrl = document.getElementById('shareUrl').value;
+                await navigator.clipboard.writeText(shareUrl);
+                appState.copySuccess = true;
+                render();
+                
+                setTimeout(() => {
+                    if (appState.copySuccess) {
+                        appState.copySuccess = false;
+                        render();
+                    }
+                }, 3000);
+            } catch (err) {
+                // Fallback for older browsers
+                const shareInput = document.getElementById('shareUrl');
+                shareInput.select();
+                shareInput.setSelectionRange(0, 99999);
+                document.execCommand('copy');
+                appState.copySuccess = true;
+                render();
+                
+                setTimeout(() => {
+                    if (appState.copySuccess) {
+                        appState.copySuccess = false;
+                        render();
+                    }
+                }, 3000);
+            }
+        }
+
+        // 🛠️ UTILITY FUNCTIONS
+        function getShortTabName(title) {
+            switch (title) {
+                case 'Business Plan': return 'Plan';
+                case 'Analyse Concurrentielle': return 'Concurrence';
+                default: return title;
+            }
+        }
+
+        function getDailyTip() {
+            const tips = [
+                "Une étude de marché approfondie est la clé d'un business plan réussi.",
+                "Concentrez-vous sur la résolution d'un problème réel de vos clients.",
+                "Testez votre MVP (Minimum Viable Product) le plus rapidement possible.",
+                "L'analyse concurrentielle vous aide à identifier votre avantage unique.",
+                "Un bon marketing commence par comprendre parfaitement sa cible.",
+                "Mesurez tout : ce qui ne se mesure pas ne peut pas s'améliorer.",
+                "L'itération rapide est plus importante que la perfection initiale."
+            ];
+            const today = new Date().getDay();
+            return tips[today];
+        }
+
+        // 🚀 INITIALIZATION
+        async function initializeApp() {
+            // Check if user is already logged in (Supabase session)
+            if (supabase) {
+                try {
+                    const { data: { session } } = await supabase.auth.getSession();
+                    if (session?.user) {
+                        appState.user = session.user;
+                        fetchProjects();
+                    }
+                } catch (error) {
+                    console.error('Session check error:', error);
+                }
+            }
+
+            // Listen for auth changes
+            if (supabase) {
+                supabase.auth.onAuthStateChange((event, session) => {
+                    if (event === 'SIGNED_IN' && session?.user) {
+                        appState.user = session.user;
+                        fetchProjects();
+                        render();
+                    } else if (event === 'SIGNED_OUT') {
+                        appState.user = null;
+                        appState.projects = [];
+                        render();
+                    }
+                });
+            }
+
+            appState.isLoading = false;
+            render();
+        }
+
+        // Handle Enter key in forms
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                const activeElement = document.activeElement;
+                if (activeElement && (activeElement.id === 'email' || activeElement.id === 'password')) {
+                    submitAuth();
+                }
+            }
+        });
+
+        // Start the application
+        initializeApp();
+    </script>
+</body>
+</html>
